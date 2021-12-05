@@ -63,7 +63,7 @@ def voisinage(solution, list_weights, max_weight):
     idx_objects_in = np.where(solution == 1)[0]
     idx_objects_not_in = np.where(solution == 0)[0]
 
-    neighbors = []
+    neighbors = np.empty((0, len(solution)), int)
 
     tmp_sol = solution.copy()
 
@@ -76,11 +76,22 @@ def voisinage(solution, list_weights, max_weight):
 
             # check if the generated sol is workable
             if tmp_sol @ list_weights <= max_weight:
-                neighbors.append(tmp_sol)
+
+                # fill the bag as much as possible
+                free_weight =  max_weight - tmp_sol @ list_weights
+                objects_that_could_fit = np.where(list_weights <= free_weight)[0]
+
+                while free_weight > 0 and len(objects_that_could_fit) > 0:
+                    object_to_add = np.random.choice(objects_that_could_fit)
+                    tmp_sol[object_to_add] = 1
+                    free_weight -= list_weights[object_to_add]
+                    objects_that_could_fit = np.where(list_weights <= free_weight)[0]
+
+                if tmp_sol not in neighbors:
+                    neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
 
             tmp_sol = solution.copy()
-
-    return np.array(neighbors)
+    return neighbors
 
 
 def read_instance(file_):

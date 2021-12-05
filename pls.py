@@ -38,7 +38,7 @@ class PLS():
         The main algorithmic loop of the PLS alogirthm. It is building
         iteratively the population P of approximated solutions.
         """
-        while self.P != []:
+        while len(self.P) > 0:
             # Generate all neighbors p' of each solution in the current population.
             for p in self.P:
                 p_values = self.get_sol_objective_values(p)
@@ -46,8 +46,6 @@ class PLS():
                 nb_neighbors = len(neighbors)
 
                 for j, p_prime in enumerate(neighbors):
-                    print("neighbor : " + str(j) +"/"+ str(nb_neighbors), end = '\r')
-
                     p_prime_values = self.get_sol_objective_values(p_prime)
                     # If p' is non-dominated by p:
                     if not dominates(p_values, p_prime_values):
