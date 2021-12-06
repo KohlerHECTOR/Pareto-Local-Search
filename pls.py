@@ -5,7 +5,7 @@ class PLS():
     """
     The Pareto Lcoal Search class for the PLS algorithm in the context of bi-objs knapsack problem.
     """
-    def __init__(self, f_voisinage, init_pop, instance):
+    def __init__(self, f_voisinage, init_pop, instance, iter_max = 10):
         """
         Function to initialise the PLS class.
 
@@ -19,13 +19,16 @@ class PLS():
         self.Xe = init_pop # approximation of efficient solutions
         self.P = init_pop # current population of solutions
         self.Pa = np.empty((0, self.size_of_a_sol), int) # auxiliary population of solutions
-        self.N = f_voisinage
+        self.N = f_voisinage # neighborhood function
 
+        # INSTANCE OF BI-OBJS KNAPSACK
         self.objects = instance["objects"]
         self.max_weight = instance["max_weight"]
         self.weights = self.objects["weights"]
         self.values_crit_1 = self.objects["values_crit_1"]
         self.values_crit_2 = self.objects["values_crit_2"]
+
+        self.iter_max = iter_max # stopping criterion
 
     def get_sol_objective_values(self, sol):
         values_obj_1 = sol @ self.values_crit_1
@@ -38,21 +41,27 @@ class PLS():
         The main algorithmic loop of the PLS alogirthm. It is building
         iteratively the population P of approximated solutions.
         """
-        while len(self.P) > 0:
+        iter = 0
+        while len(self.P) > 0 and iter < self.iter_max:
             # Generate all neighbors p' of each solution in the current population.
             for p in self.P:
+                # Get the objective values of sol p
                 p_values = self.get_sol_objective_values(p)
+                # Get neighbors of sol p
                 neighbors = self.N(p, self.weights, self.max_weight)
-                nb_neighbors = len(neighbors)
 
-                for j, p_prime in enumerate(neighbors):
+                for p_prime in neighbors:
                     p_prime_values = self.get_sol_objective_values(p_prime)
                     # If p' is non-dominated by p:
                     if not dominates(p_values, p_prime_values):
+                        # We check if p' is part of the current efficient sols
                         add, self.Xe = self.updates(self.Xe, p_prime)
+
                         if add:
+
                             if len(self.Pa) == 0:
                                 self.Pa = p_prime.reshape(1, self.size_of_a_sol)
+
                             else:
                                 _, self.Pa = self.updates(self.Pa, p_prime)
 
@@ -63,10 +72,12 @@ class PLS():
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 
+            iter += 1
+
 
     def updates(self, array_of_sols, p_prime):
         """
-        Function to update the set of approximated efficient solutions.
+        Function to update a set of objective values with respect to pareto dominance.
 
         ARGS
 
@@ -82,6 +93,8 @@ class PLS():
         """
 
         add = True
+
+        # get objective values of the solution to be tested
         p_prime_values = self.get_sol_objective_values(p_prime)
 
         for sol in array_of_sols:
@@ -116,7 +129,7 @@ class PLS2(PLS):
     def updates(self, array_of_sols, p_prime):
         """
         Function to update the set of approximated efficient solutions. But we sort
-        the set with respect ot the values of the first objective.
+        the set with respect to the values of the first objective.
 
         ARGS
 
@@ -130,12 +143,15 @@ class PLS2(PLS):
         array_of_sols : array of arrays, the updated archive.
         """
         add = False
-        p_prime_values = self.get_sol_objective_values(p_prime)
+        p_prime_values = self.get_sol_objective_values(p_prime) # objective vals of p'
+
         id_of_p_prime = len(array_of_sols) # to keep track of the tested solution
+
         # make a list of all the values of the objective of the sols in the archive and the tested sol
         all_values = [self.get_sol_objective_values(sol) for sol in array_of_sols]
         all_values = np.array(all_values)
         all_values = np.concatenate((all_values, p_prime_values.reshape(1,2)), axis = 0)
+
         # argsort descending order with respect to first objective
         idx_sorted = np.argsort(-1 * all_values[:,0], axis = 0)
         sorted_values = all_values[idx_sorted]

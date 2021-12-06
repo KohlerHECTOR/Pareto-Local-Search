@@ -43,10 +43,15 @@ def init_population(objects, max_weight):
     return np.array([sol])  #codage binaire du contenu du sac
 
 def R(weight, q, v_1, v_2):
+    """
+    Function to compute the R indicator of an object
+    """
     return (q * v_1 + (1 - q) * v_2) / weight
 
 def init_population_S_weighted(objects, max_weight, S):
-
+    """
+    Function to generate a good quality intial population in terms of R indicators for each objects
+    """
     list_weights = objects["weights"]
     list_values_1 = objects["values_crit_1"]
     list_values_2 = objects["values_crit_2"]
@@ -127,8 +132,9 @@ def voisinage(solution, list_weights, max_weight):
                     free_weight -= list_weights[object_to_add]
                     objects_that_could_fit = np.where(list_weights <= free_weight)[0]
 
-                if tmp_sol not in neighbors:
+                if tmp_sol.tolist() not in neighbors.tolist():
                     neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
+                # neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
 
             tmp_sol = solution.copy()
 
@@ -188,16 +194,10 @@ def voisinage_L(solution, list_weights, max_weight, L, list_values_1, list_value
                     sols = np.delete(sols, to_delete, axis = 0)
                     sols = np.concatenate((comb_sol))
 
-
-
-    # elif solve == "pls":
-    #     pass
-
-
-
-
-
 def read_instance(file_):
+    """
+    Function to read a bi-objs knapsack problem instance
+    """
     f_dat = open(file_+".dat", "r")
     lines = f_dat.readlines()
     liste_w = []
@@ -228,6 +228,9 @@ def read_instance(file_):
     return instance
 
 def dominates(p_values, p_prime_values):
+    """
+    Function to check if vector p dominates (pareto) p' in maximisation
+    """
     p_values_crit_1 = p_values[0]
     p_values_crit_2 = p_values[1]
 
@@ -243,6 +246,9 @@ def dominates(p_values, p_prime_values):
         return False
 
 def strictly_dominates(p_values, p_prime_values):
+    """
+    Function to check if vector p strictly dominates (pareto) p' in maximisation
+    """
     p_values_crit_1 = p_values[0]
     p_values_crit_2 = p_values[1]
 
