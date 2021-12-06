@@ -1,19 +1,14 @@
-from utils import read_instance, init_population, voisinage
+from utils import read_instance, init_population, voisinage, init_population_S_weighted
 from indicateurs import indicateur_P
 import matplotlib.pyplot as plt
 import numpy as np
 from pls import PLS, PLS2
 
 instance = read_instance("data/100_items/2KP100-TA-0")
-pareto = instance["sols_pareto"]
+
 initial_pop = init_population(instance["objects"], instance["max_weight"])
+initial_pop_S = init_population_S_weighted(instance["objects"], instance["max_weight"], S = 10)
 
-
-# pls = PLS(voisinage, initial_pop, instance)
-pls = PLS(voisinage, initial_pop, instance)
-pls.algorithm1()
-print("RESULT")
-print(pls.Xe)
-# plt.scatter(pareto[:,0], pareto[:,1])
-#plt.savefig("2KP100-TA-0_pareto.png")
-# plt.show()
+pls1 = PLS(voisinage, initial_pop, instance)
+pls2 = PLS2(voisinage, initial_pop, instance)
+pls3 = PLS2(voisinage, initial_pop_S, instance)

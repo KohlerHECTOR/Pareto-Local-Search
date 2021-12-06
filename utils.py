@@ -1,4 +1,6 @@
 import numpy as np
+from random import random
+from itertools import combinations
 
 def init_population(objects, max_weight):
     """
@@ -27,7 +29,7 @@ def init_population(objects, max_weight):
     min_weight = np.min(list_weights)
 
     # While there is space in the bag and there exists an object light enough to fit
-    while((sol @ list_weights < max_weight) and (max_weight - sol @ list_weights > min_weight)):
+    while((sol @ list_weights < max_weight) and (max_weight - sol @ list_weights >= min_weight)):
         rand_object = np.random.choice(tmp_sol) # choose an object at random
 
         # if that object is light enough to fit
@@ -39,6 +41,44 @@ def init_population(objects, max_weight):
     assert sol @ list_weights <= max_weight , "Initial solution is not workable (too heavy)."
 
     return np.array([sol])  #codage binaire du contenu du sac
+
+def R(weight, q, v_1, v_2):
+    return (q * v_1 + (1 - q) * v_2) / weight
+
+def init_population_S_weighted(objects, max_weight, S):
+
+    list_weights = objects["weights"]
+    list_values_1 = objects["values_crit_1"]
+    list_values_2 = objects["values_crit_2"]
+    nb_objects = len(list_weights)
+    idx_available_objects = np.arange(nb_objects)
+
+    init_pop = []
+    min_weight = np.min(list_weights[idx_available_objects])
+
+    while len(init_pop) < S:
+        q = random()
+        list_R = np.array([R(list_weights[i], q, list_values_1[i], list_values_2[i]) for i in idx_available_objects])
+        best_R = np.argsort(-1 * list_R)
+        sorted_objects_by_R = idx_available_objects[best_R].copy()# objects sorted by best R
+        i = 0
+        sol = np.zeros(nb_objects)
+
+        while((sol @ list_weights < max_weight) and (max_weight - sol @ list_weights >= min_weight)):
+            object_to_test = sorted_objects_by_R[i]
+
+            if (sol @ list_weights + list_weights[object_to_test] <= max_weight):
+                sol[object_to_test] = 1
+                idx_available_objects = np.delete(idx_available_objects, np.where(idx_available_objects == object_to_test), axis = 0)
+                min_weight = np.min(list_weights[idx_available_objects])
+            i += 1
+
+        idx_available_objects = np.arange(nb_objects)
+
+        init_pop.append(sol)
+
+    return init_pop
+
 
 def voisinage(solution, list_weights, max_weight):
     """
@@ -91,7 +131,70 @@ def voisinage(solution, list_weights, max_weight):
                     neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
 
             tmp_sol = solution.copy()
+
     return neighbors
+
+def voisinage_L(solution, list_weights, max_weight, L, list_values_1, list_values_2, solve = "enum"):
+
+    q = random()
+    # indexes of objects in/not in the bag
+    idx_objects_in = np.where(solution == 1)[0]
+    idx_objects_not_in = np.where(solution == 0)[0]
+
+    neighbors = np.empty((0, len(solution)), int)
+
+    tmp_sol = solution.copy()
+
+    list_R = np.array([R(object, q, v_1[object], v_2[object]) for object in idx_objects_in])
+    worst_R = np.argsort(list_R)
+    L1 = worst_R[:L]
+
+    list_R = np.array([R(object, q, v_1[object], v_2[object]) for object in idx_objects_not_in])
+    best_R = np.argsort(-1 * list_R)
+    L2 = best_R[:L]
+    # New instance of Knapsack problem
+    new_KP_objects = np.concatenate((L1, L2))
+    new_KP_max_weight = max_weight - np.sum(list_weights[L2])
+    new_KP_v1 = list_values_1[new_KP_objects]
+    new_KP_v2 = list_values_2[new_KP_objects]
+    new_KP_nb_objs = len(new_KP_objects)
+
+
+    if solve == "enum": #for L < 5
+        init_sol = np.zeros(new_KP_nb_objs)
+        pareto = [[0, 0]]
+        sols = np.array([init_sol])
+        for i in range(L):
+            comb = combinations(new_KP_objects, i + 1)
+            comb_sol = np.zeros(new_KP_nb_objs)
+            for o in comb:
+                id = np.where(new_KP_objects == o)
+                comb_sol[id] = 1
+
+            if np.sum(list_weights[comb]) <= new_KP_max_weight:
+                vals_comb = [np.sum(list_values_1[comb]), np.sum(list_values_2[comb])]
+                add = True
+                for s in pareto:
+                    if dominates(s, vals_comb):
+                        add = False
+                        break
+                if add:
+                    to_delete = []
+                    i = 0
+                    for s in pareto:
+                        if strictly_dominates(vals_comb, s):
+                            pareto.remove(s)
+                            to_delete.append(i)
+                    sols = np.delete(sols, to_delete, axis = 0)
+                    sols = np.concatenate((comb_sol))
+
+
+
+    # elif solve == "pls":
+    #     pass
+
+
+
 
 
 def read_instance(file_):
