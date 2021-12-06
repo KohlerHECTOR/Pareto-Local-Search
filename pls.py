@@ -123,8 +123,8 @@ class PLS():
 
 
 class PLS2(PLS):
-    def  __init__(self, f_voisinage, init_pop, instance):
-        super().__init__(f_voisinage, init_pop, instance)
+    def  __init__(self, f_voisinage, init_pop, instance, iter_max = 10):
+        super().__init__(f_voisinage, init_pop, instance, iter_max)
 
     def updates(self, array_of_sols, p_prime):
         """
