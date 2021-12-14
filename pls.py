@@ -129,8 +129,9 @@ class PLS2(PLS):
 
     def updates(self, array_of_sols, p_prime):
         """
-        Function to update the set of approximated efficient solutions. But we sort
-        the set with respect to the values of the first objective.
+        Function to update the set of approximated efficient solutions. But
+        the set is  sorted with respect to the values of the first objective.
+        It is sorted, because we insert new sols in order.
 
         ARGS
 
@@ -147,16 +148,16 @@ class PLS2(PLS):
         p_prime_values = self.get_sol_objective_values(p_prime) # objective vals of p'
 
         # make a list of all the values of the objective of the sols in the archive and the tested sol
-        all_values = [self.get_sol_objective_values(sol) for sol in array_of_sols]
-        all_values = np.array(all_values)
+        sorted_values = [self.get_sol_objective_values(sol) for sol in array_of_sols]
+        sorted_values = np.array(sorted_values)
 
-        # argsort descending order with respect to first objective
-        rank_of_p_prime_in_sorted_sols = bisect_left(-1 * all_values[:,0], -1 * p_prime_values[0])
+        # find the index i such that obj1(sol[0]) >= obj1(sol[i-1])... obj1(sol[i-1]) > obj1(solTested) >= obj1(sol[i]) ...
+        rank_of_p_prime_in_sorted_sols = bisect_left(-1 * sorted_values[:,0], -1 * p_prime_values[0])
 
         if rank_of_p_prime_in_sorted_sols == 0:
             add = True
         else:
-            for sorted_val in np.flip(all_values[:rank_of_p_prime_in_sorted_sols], axis = 0):
+            for sorted_val in np.flip(sorted_values[:rank_of_p_prime_in_sorted_sols], axis = 0):
                 # If there is an efficient solution dominating p', we dont add p_prime.
                 if dominates(sorted_val, p_prime_values):
                     add = False
@@ -166,7 +167,7 @@ class PLS2(PLS):
         # dominated by p' in the set of efficient sols.
         if add:
             to_delete = []
-            for i , sorted_val in enumerate(all_values[rank_of_p_prime_in_sorted_sols: ]):
+            for i , sorted_val in enumerate(sorted_values[rank_of_p_prime_in_sorted_sols: ]):
                 if dominates(p_prime_values, sorted_val):
                     to_delete.append(i)
 
