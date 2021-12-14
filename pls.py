@@ -50,7 +50,6 @@ class PLS():
                 p_values = self.get_sol_objective_values(p)
                 # Get neighbors of sol p
                 neighbors = self.N(p, self.weights, self.max_weight)
-
                 for p_prime in neighbors:
                     p_prime_values = self.get_sol_objective_values(p_prime)
                     # If p' is non-dominated by p:
@@ -151,33 +150,29 @@ class PLS2(PLS):
         all_values = np.array(all_values)
 
         # argsort descending order with respect to first objective
-        idx_sorted = np.argsort(-1 * all_values[:,0], axis = 0)
-        sorted_values = all_values[idx_sorted]
-        rank_of_p_prime_in_sorted_sols = bisect_left(-1 * sorted_values[:,0], -1 * p_prime_values[0])
-        sorted_array_of_sols = array_of_sols[idx_sorted]
+        rank_of_p_prime_in_sorted_sols = bisect_left(-1 * all_values[:,0], -1 * p_prime_values[0])
 
         if rank_of_p_prime_in_sorted_sols == 0:
             add = True
         else:
-            for sorted_val in np.flip(sorted_values[:rank_of_p_prime_in_sorted_sols], axis = 0):
+            for sorted_val in np.flip(all_values[:rank_of_p_prime_in_sorted_sols], axis = 0):
                 # If there is an efficient solution dominating p', we dont add p_prime.
-                if not dominates(sorted_val, p_prime_values):
-                    add = True
+                if dominates(sorted_val, p_prime_values):
+                    add = False
                     break
 
         # If we want to add p' to the set of efficient sols, we have to delete the solutions
         # dominated by p' in the set of efficient sols.
         if add:
             to_delete = []
-            for i , sorted_val in enumerate(sorted_values[rank_of_p_prime_in_sorted_sols: ]):
+            for i , sorted_val in enumerate(all_values[rank_of_p_prime_in_sorted_sols: ]):
                 if dominates(p_prime_values, sorted_val):
                     to_delete.append(i)
-                    break
 
             # Update of set of approximated efficient sols (delete dominated sols, add p')
-            tmp = np.delete(sorted_array_of_sols[rank_of_p_prime_in_sorted_sols: ], to_delete, axis = 0)
+            tmp = np.delete(array_of_sols[rank_of_p_prime_in_sorted_sols: ], to_delete, axis = 0)
 
-            sorted_array_of_sols = np.concatenate((sorted_array_of_sols[:rank_of_p_prime_in_sorted_sols], p_prime.reshape(1,self.size_of_a_sol)), axis = 0)
-            sorted_array_of_sols = np.concatenate((sorted_array_of_sols , tmp), axis = 0)
-
-        return add, sorted_array_of_sols
+            array_of_sols = np.concatenate((array_of_sols[:rank_of_p_prime_in_sorted_sols], p_prime.reshape(1,self.size_of_a_sol)), axis = 0)
+            array_of_sols = np.concatenate((array_of_sols , tmp), axis = 0)
+            
+        return add, array_of_sols
