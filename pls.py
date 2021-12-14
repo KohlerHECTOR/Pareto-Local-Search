@@ -16,6 +16,7 @@ class PLS():
 
         init_pop : a 2-D array of workable solutions.
         """
+        assert init_pop.shape[1] == 100, "OUPS something went wrong with the initial pop"
         self.size_of_a_sol = len(init_pop[0])
         self.Xe = init_pop # approximation of efficient solutions
         self.P = init_pop # current population of solutions
@@ -172,7 +173,8 @@ class PLS2(PLS):
             # Update of set of approximated efficient sols (delete dominated sols, add p')
             tmp = np.delete(array_of_sols[rank_of_p_prime_in_sorted_sols: ], to_delete, axis = 0)
 
+
             array_of_sols = np.concatenate((array_of_sols[:rank_of_p_prime_in_sorted_sols], p_prime.reshape(1,self.size_of_a_sol)), axis = 0)
             array_of_sols = np.concatenate((array_of_sols , tmp), axis = 0)
-            
+
         return add, array_of_sols

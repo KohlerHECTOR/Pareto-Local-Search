@@ -82,6 +82,7 @@ def init_population_S_weighted(objects, max_weight, S):
 
         init_pop.append(sol)
 
+    init_pop = np.array(init_pop).reshape(S, len(sol))
     return init_pop
 
 
