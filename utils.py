@@ -141,7 +141,8 @@ def voisinage(solution, list_weights, max_weight):
 
     return neighbors
 
-def voisinage_L(solution, list_weights, max_weight, L, list_values_1, list_values_2, solve = "enum"):
+def voisinage_L(solution, list_weights, max_weight, list_values_1, list_values_2, L = 5, solve = "enum"):
+
 
     q = random()
     # indexes of objects in/not in the bag
@@ -152,16 +153,26 @@ def voisinage_L(solution, list_weights, max_weight, L, list_values_1, list_value
 
     tmp_sol = solution.copy()
 
-    list_R = np.array([R(object, q, v_1[object], v_2[object]) for object in idx_objects_in])
+    list_R = np.array([R(object, q, list_values_1[object], list_values_2[object]) for object in idx_objects_in])
     worst_R = np.argsort(list_R)
     L1 = worst_R[:L]
 
-    list_R = np.array([R(object, q, v_1[object], v_2[object]) for object in idx_objects_not_in])
+    list_R = np.array([R(object, q, list_values_1[object], list_values_2[object]) for object in idx_objects_not_in])
     best_R = np.argsort(-1 * list_R)
     L2 = best_R[:L]
     # New instance of Knapsack problem
     new_KP_objects = np.concatenate((L1, L2))
-    new_KP_max_weight = max_weight - np.sum(list_weights[L2])
+
+    # weight_objects_not_in_L1 = 0
+    #
+    # for i in range(len(list_weights)):
+    #     if i not in L1:
+    #         weight_objects_not_in_L1 += list_weights[i]
+
+
+
+    new_KP_max_weight = max_weight - np.sum(list_weights[L2]) #weight_objects_not_in_L1
+
     new_KP_v1 = list_values_1[new_KP_objects]
     new_KP_v2 = list_values_2[new_KP_objects]
     new_KP_nb_objs = len(new_KP_objects)
@@ -172,28 +183,36 @@ def voisinage_L(solution, list_weights, max_weight, L, list_values_1, list_value
         pareto = [[0, 0]]
         sols = np.array([init_sol])
         for i in range(L):
-            comb = combinations(new_KP_objects, i + 1)
-            comb_sol = np.zeros(new_KP_nb_objs)
-            for o in comb:
-                id = np.where(new_KP_objects == o)
-                comb_sol[id] = 1
+            combs = combinations(new_KP_objects, i + 1)
 
-            if np.sum(list_weights[comb]) <= new_KP_max_weight:
-                vals_comb = [np.sum(list_values_1[comb]), np.sum(list_values_2[comb])]
-                add = True
-                for s in pareto:
-                    if dominates(s, vals_comb):
-                        add = False
-                        break
-                if add:
-                    to_delete = []
-                    i = 0
+            for comb in combs:
+                comb = list(comb)
+                comb_sol = np.zeros(new_KP_nb_objs)
+
+                for o in comb:
+                    id = np.where(new_KP_objects == o)
+                    comb_sol[id] = 1
+                if np.sum(list_weights[comb]) <= new_KP_max_weight:
+                    vals_comb = [np.sum(list_values_1[comb]), np.sum(list_values_2[comb])]
+                    add = True
                     for s in pareto:
-                        if strictly_dominates(vals_comb, s):
-                            pareto.remove(s)
-                            to_delete.append(i)
-                    sols = np.delete(sols, to_delete, axis = 0)
-                    sols = np.concatenate((comb_sol))
+                        if dominates(s, vals_comb):
+                            add = False
+                            break
+                    if add:
+                        to_delete = []
+                        for i, s in enumerate(pareto):
+                            if dominates(vals_comb, s):
+                                pareto.remove(s)
+                                to_delete.append(i)
+                        sols = np.delete(sols, to_delete, axis = 0)
+                        sols = np.concatenate((sols, comb_sol.reshape(1, new_KP_nb_objs)), axis = 0)
+
+    for sol in sols:
+        tmp = np.concatenate((sol, solution[2 * L:]))
+        neighbors = np.concatenate((neighbors, tmp.reshape(1, len(solution))), axis = 0)
+
+    return neighbors
 
 def read_instance(file_):
     """

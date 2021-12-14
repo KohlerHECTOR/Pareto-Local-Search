@@ -113,7 +113,7 @@ class PLS():
             for i , sol in enumerate(array_of_sols):
                 sol_values = self.get_sol_objective_values(sol)
                 # We delete all the solutions strictly dominated by p'.
-                if strictly_dominates(p_prime_values, sol_values):
+                if dominates(p_prime_values, sol_values):
                     idx_to_delete.append(i)
 
             # Update of set of approximated efficient sols (delete dominated sols, add p')
@@ -144,7 +144,7 @@ class PLS2(PLS):
         add : bool, whether or not the solution p_prime was added to the set of efficient solutions.
         array_of_sols : array of arrays, the updated archive.
         """
-        add = False
+        add = True
         p_prime_values = self.get_sol_objective_values(p_prime) # objective vals of p'
 
         # make a list of all the values of the objective of the sols in the archive and the tested sol
@@ -179,3 +179,45 @@ class PLS2(PLS):
             array_of_sols = np.concatenate((array_of_sols , tmp), axis = 0)
 
         return add, array_of_sols
+
+
+class PLS4(PLS2):
+    def  __init__(self, f_voisinage, init_pop, instance, iter_max = 10):
+        super().__init__(f_voisinage, init_pop, instance, iter_max)
+
+    def algorithm1(self, L = 5):
+        """
+        The main algorithmic loop of the PLS alogirthm. It is building
+        iteratively the population P of approximated solutions.
+        """
+        iter = 0
+        while len(self.P) > 0 and iter < self.iter_max:
+            # Generate all neighbors p' of each solution in the current population.
+            for p in self.P:
+                # Get the objective values of sol p
+                p_values = self.get_sol_objective_values(p)
+                # Get neighbors of sol p
+                neighbors = self.N(p, self.weights, self.max_weight, self.values_crit_1, self.values_crit_2 , L = L)
+                for p_prime in neighbors:
+                    p_prime_values = self.get_sol_objective_values(p_prime)
+                    # If p' is non-dominated by p:
+                    if not dominates(p_values, p_prime_values):
+                        # We check if p' is part of the current efficient sols
+                        add, self.Xe = self.updates(self.Xe, p_prime)
+
+                        if add:
+
+                            if len(self.Pa) == 0:
+                                self.Pa = p_prime.reshape(1, self.size_of_a_sol)
+
+                            else:
+                                _, self.Pa = self.updates(self.Pa, p_prime)
+
+            # P is made of newly found potentially efficient solutions.
+            self.P = self.Pa.copy()
+            print("Updated current population !")
+            print("population is of size: " , self.P.shape)
+            # Reinit of auxiliary pop.
+            self.Pa = np.empty((0, self.size_of_a_sol), int)
+
+            iter += 1
