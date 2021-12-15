@@ -97,11 +97,13 @@ class PLS():
 
         # get objective values of the solution to be tested
         p_prime_values = self.get_sol_objective_values(p_prime)
+        # make a list of all the values of the objective of the sols in the archive and the tested sol
+        all_values = [self.get_sol_objective_values(sol) for sol in array_of_sols]
+        all_values = np.array(all_values)
 
-        for sol in array_of_sols:
-            sol_values = self.get_sol_objective_values(sol)
+        for val in all_values:
             # If there is an efficient solution dominating p', we dont add p_prime.
-            if dominates(sol_values, p_prime_values):
+            if dominates(val, p_prime_values):
                 add = False
                 break
 
@@ -110,10 +112,9 @@ class PLS():
         if add:
             idx_to_delete = []
 
-            for i , sol in enumerate(array_of_sols):
-                sol_values = self.get_sol_objective_values(sol)
+            for i , val in enumerate(all_values):
                 # We delete all the solutions strictly dominated by p'.
-                if dominates(p_prime_values, sol_values):
+                if dominates(p_prime_values, val):
                     idx_to_delete.append(i)
 
             # Update of set of approximated efficient sols (delete dominated sols, add p')
@@ -154,14 +155,11 @@ class PLS2(PLS):
         # find the index i such that obj1(sol[0]) >= obj1(sol[i-1])... obj1(sol[i-1]) > obj1(solTested) >= obj1(sol[i]) ...
         rank_of_p_prime_in_sorted_sols = bisect_left(-1 * sorted_values[:,0], -1 * p_prime_values[0])
 
-        if rank_of_p_prime_in_sorted_sols == 0:
-            add = True
-        else:
-            for sorted_val in np.flip(sorted_values[:rank_of_p_prime_in_sorted_sols], axis = 0):
-                # If there is an efficient solution dominating p', we dont add p_prime.
-                if dominates(sorted_val, p_prime_values):
-                    add = False
-                    break
+        for sorted_val in np.flip(sorted_values[:rank_of_p_prime_in_sorted_sols], axis = 0):
+            # If there is an efficient solution dominating p', we dont add p_prime.
+            if dominates(sorted_val, p_prime_values):
+                add = False
+                break
 
         # If we want to add p' to the set of efficient sols, we have to delete the solutions
         # dominated by p' in the set of efficient sols.
@@ -177,7 +175,7 @@ class PLS2(PLS):
 
             array_of_sols = np.concatenate((array_of_sols[:rank_of_p_prime_in_sorted_sols], p_prime.reshape(1,self.size_of_a_sol)), axis = 0)
             array_of_sols = np.concatenate((array_of_sols , tmp), axis = 0)
-
+            
         return add, array_of_sols
 
 
