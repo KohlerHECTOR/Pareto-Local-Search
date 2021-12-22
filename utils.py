@@ -104,7 +104,6 @@ def voisinage(solution, list_weights, max_weight):
     neighbors : an array of binary encodings.
     Each one corresponding to a workable solution in the neighborhood of the input solution .
     """
-
     # indexes of objects in/not in the bag
     idx_objects_in = np.where(solution == 1)[0]
     idx_objects_not_in = np.where(solution == 0)[0]
@@ -136,8 +135,9 @@ def voisinage(solution, list_weights, max_weight):
                 if tmp_sol.tolist() not in neighbors.tolist():
                     neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
                 # neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
-
+            
             tmp_sol = solution.copy()
+
 
     return neighbors
 
@@ -279,3 +279,8 @@ def strictly_dominates(p_values, p_prime_values):
         return True
     else:
         return False
+        
+def ideal_nadir(objects):
+    ideal = [max(objects["values_crit_1"]), max(objects["values_crit_2"])]
+    nadir = [min(objects["values_crit_1"]), min(objects["values_crit_2"])]
+    return [ideal, nadir]
