@@ -153,11 +153,11 @@ def voisinage_L(solution, list_weights, max_weight, list_values_1, list_values_2
 
     tmp_sol = solution.copy()
 
-    list_R = np.array([R(object, q, list_values_1[object], list_values_2[object]) for object in idx_objects_in])
+    list_R = np.array([R(list_weights[object], q, list_values_1[object], list_values_2[object]) for object in idx_objects_in])
     worst_R = np.argsort(list_R)
     L1 = worst_R[:L]
 
-    list_R = np.array([R(object, q, list_values_1[object], list_values_2[object]) for object in idx_objects_not_in])
+    list_R = np.array([R(list_weights[object], q, list_values_1[object], list_values_2[object]) for object in idx_objects_not_in])
     best_R = np.argsort(-1 * list_R)
     L2 = best_R[:L]
     # New instance of Knapsack problem
