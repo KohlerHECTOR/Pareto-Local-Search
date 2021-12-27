@@ -29,7 +29,8 @@ class PLS():
         self.max_weight = instance["max_weight"]
         self.weights = self.objects["weights"]
         
-        self.values_crit = [self.objects["values_crit_"+str(i+1)] for i in range(nb_crit)]
+        self.nb_crit = nb_crit
+        self.values_crit = np.array([self.objects["values_crit_"+str(i+1)] for i in range(self.nb_crit)])
 
         self.iter_max = iter_max # stopping criterion
 
@@ -178,7 +179,6 @@ class PLS2(PLS):
 
             array_of_sols = np.concatenate((array_of_sols[:rank_of_p_prime_in_sorted_sols], p_prime.reshape(1,self.size_of_a_sol)), axis = 0)
             array_of_sols = np.concatenate((array_of_sols , tmp), axis = 0)
-            
         return add, array_of_sols
 
 
@@ -198,7 +198,7 @@ class PLS4(PLS2):
                 # Get the objective values of sol p
                 p_values = self.get_sol_objective_values(p)
                 # Get neighbors of sol p
-                neighbors = self.N(p, self.weights, self.max_weight, self.values_crit_1, self.values_crit_2 , L = L)
+                neighbors = self.N(p, self.weights, self.max_weight, self.values_crit, self.nb_crit, L = L)
                 for p_prime in neighbors:
                     p_prime_values = self.get_sol_objective_values(p_prime)
                     # If p' is non-dominated by p:

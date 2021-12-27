@@ -42,19 +42,23 @@ def init_population(objects, max_weight):
 
     return np.array([sol])  #codage binaire du contenu du sac
 
-def R(weight, q, v_1, v_2):
+def R(weight, q, liste_v):
     """
     Function to compute the R indicator of an object
     """
-    return (q * v_1 + (1 - q) * v_2) / weight
+    res = q * liste_v[0]
+    nb_crit = np.size(liste_v)
+    for i in range(1,nb_crit):
+        res = res + (1-q)/(nb_crit-1)*liste_v[i]
+    return res / weight
 
-def init_population_S_weighted(objects, max_weight, S):
+def init_population_S_weighted(nb_crit, objects, max_weight, S):
     """
     Function to generate a good quality intial population in terms of R indicators for each objects
     """
     list_weights = objects["weights"]
-    list_values_1 = objects["values_crit_1"]
-    list_values_2 = objects["values_crit_2"]
+    list_values_crit = [objects["values_crit_"+str(i+1)] for i in range(nb_crit)]
+
     nb_objects = len(list_weights)
     idx_available_objects = np.arange(nb_objects)
 
@@ -63,7 +67,8 @@ def init_population_S_weighted(objects, max_weight, S):
 
     while len(init_pop) < S:
         q = random()
-        list_R = np.array([R(list_weights[i], q, list_values_1[i], list_values_2[i]) for i in idx_available_objects])
+
+        list_R = np.array([R(list_weights[i], q, np.array([c[i] for c in list_values_crit])) for i in idx_available_objects])
         best_R = np.argsort(-1 * list_R)
         sorted_objects_by_R = idx_available_objects[best_R].copy()# objects sorted by best R
         i = 0
@@ -143,7 +148,6 @@ def voisinage(solution, list_weights, max_weight):
 
 def voisinage_L(solution, list_weights, max_weight, list_values, nb_crit, L = 5, solve = "enum"):
 #def voisinage_L(solution, list_weights, max_weight, list_values_1, list_values_2, L = 5, solve = "enum"):
-
     q = random()
     # indexes of objects in/not in the bag
     idx_objects_in = np.where(solution == 1)[0]
@@ -152,14 +156,15 @@ def voisinage_L(solution, list_weights, max_weight, list_values, nb_crit, L = 5,
     neighbors = np.empty((0, len(solution)), int)
 
     tmp_sol = solution.copy()
-
-    list_R = np.array([R(object, q, list_values[i][object]) for i in range(nb_crit) for object in idx_objects_in])
+    
+    list_R = np.array([R(list_weights[i], q, np.array([c[i] for c in list_values])) for i in idx_objects_in])
     worst_R = np.argsort(list_R)
     L1 = worst_R[:L]
 
-    list_R = np.array([R(object, q, list_values[i][object]) for i in range(nb_crit) for object in idx_objects_not_in])
+    list_R = np.array([R(list_weights[i], q, np.array([c[i] for c in list_values])) for i in idx_objects_not_in])
     best_R = np.argsort(-1 * list_R)
     L2 = best_R[:L]
+
     # New instance of Knapsack problem
     new_KP_objects = np.concatenate((L1, L2))
 
@@ -173,8 +178,7 @@ def voisinage_L(solution, list_weights, max_weight, list_values, nb_crit, L = 5,
 
     new_KP_max_weight = max_weight - np.sum(list_weights[L2]) #weight_objects_not_in_L1
 
-    new_KP_v1 = list_values_1[new_KP_objects]
-    new_KP_v2 = list_values_2[new_KP_objects]
+    new_KP = [list_values[i] for i in range(nb_crit)]
     new_KP_nb_objs = len(new_KP_objects)
 
 
@@ -193,10 +197,10 @@ def voisinage_L(solution, list_weights, max_weight, list_values, nb_crit, L = 5,
                     id = np.where(new_KP_objects == o)
                     comb_sol[id] = 1
                 if np.sum(list_weights[comb]) <= new_KP_max_weight:
-                    vals_comb = [np.sum(list_values[i][comb] for i in range(nb_crit))]
+                    vals_comb = np.array([np.sum(list_values[i][comb]) for i in range(nb_crit)])
                     add = True
                     for s in pareto:
-                        if dominates(s, vals_comb):
+                        if dominates(np.array(s), vals_comb):
                             add = False
                             break
                     if add:
@@ -221,18 +225,24 @@ def read_instance(file_):
     f_dat = open(file_+".dat", "r")
     lines = f_dat.readlines()
     liste_w = []
-    liste_v1 = []
-    liste_v2 = []
+    liste_crit = []
+    nb_crit = 0
     poids_total = 0
+    
     for line in lines:
         tmp = line.split()
+        if tmp[0:2] == ['c',  'w']:
+           liste_crit = [[] for i in range(2,len(tmp))]
+           
         if tmp[0] == "i":
             liste_w.append(int(tmp[1]))
-            liste_v1.append(int(tmp[2]))
-            liste_v2.append(int(tmp[3]))
+            for i in range(len(liste_crit)):
+                liste_crit[i].append(int(tmp[i+2]))
+                
         elif tmp[0] == "W":
             poids_total = tmp[1]
 
+    liste_crit = np.array(liste_crit)
     f_eff = open(file_+".eff","r")
     lines_eff = f_eff.readlines()
     liste_pareto=[]
@@ -240,8 +250,10 @@ def read_instance(file_):
         temp=line.split()
         liste_pareto.append([int(temp[0]), int(temp[1])])
 
-    objects = {"weights": np.array(liste_w), "values_crit_1": np.array(liste_v1),
-                "values_crit_2": np.array(liste_v2)}
+    objects = {"weights": np.array(liste_w)}
+    for i in range(len(liste_crit)):
+        objects["values_crit_"+str(i+1)] = np.array(liste_crit[i])
+    
     instance = {"objects": objects, "max_weight": int(poids_total),
                 "sols_pareto": np.array(liste_pareto)}
 
@@ -250,52 +262,20 @@ def read_instance(file_):
 def dominates(p_values, p_prime_values):
     """
     Function to check if vector p dominates (pareto) p' in maximisation
-    """
-    
-    assert np.size(p_values)[0] == np.size(p_prime_values)[0], "OUPS, p and p' not same number of criteria"
-
-    nb_crit = np.size(p_values)[0]
-    
-    for i in range(1,nb_crit):
-        if p_values[i] < p_prime_values[i]:
-            break
-            
-        elif p_values[i] > p_prime_values[i]:
-            for j in range(1,i):
-                if p_values[j] < p_prime_values[j]:
-                    break
-            for j in range(i+1, nb_crit):
-                if p_values[j] < p_prime_values[j]:
-                    break
-            return True
-            
-        elif p_values[i] >= p_prime_values[i]:
-            for j in range(1,i):
-                if p_values[j] <= p_prime_values[j]:
-                    break
-            for j in range(i+1, nb_crit):
-                if p_values[j] <= p_prime_values[j]:
-                    break
-            return True
-            
-    return False
+    	p_values >= p_prime_values and p_values != p_prime_values
+    """    
+    assert np.size(p_values) == np.size(p_prime_values), "OUPS, p and p' not same number of criteria"
+    return (np.all(p_values >= p_prime_values)==True) and (np.all(p_values == p_prime_values)==False)
 
 def strictly_dominates(p_values, p_prime_values):
     """
     Function to check if vector p strictly dominates (pareto) p' in maximisation
     """
-    assert np.size(p_values)[0] == np.size(p_prime_values)[0], "OUPS, p and p' not same number of criteria"
+    assert np.size(p_values) == np.size(p_prime_values), "OUPS, p and p' not same number of criteria"
 
-    nb_crit = np.size(p_values)[0]
-    
-    for i in range(1,nb_crit):
-        if p_values[i] <= p_prime[i] :
-            return False
-    return True
+    return np.all(p_values > p_prime_values)==True
         
-def ideal_nadir(objects):
-    print("Size of objects == nb of criteria", objects["values_crit_"+str(i)])
-        
+def ideal_nadir(objects):        
     ideal = [max(objects["values_crit_"+str(i)]) for i in np.size(objects)[0]]
     nadir = [min(objects["values_crit_"+str(i)]) for i in np.size(objects)[0]]
     return [ideal, nadir]
