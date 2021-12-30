@@ -5,7 +5,7 @@ from indicateurs import indicateur_P, indicateur_D
 
 class PLS():
     """
-    The Pareto Lcoal Search class for the PLS algorithm in the context of bi-objs knapsack problem.
+    The Pareto Local Search class for the PLS algorithm in the context of multi-objs knapsack problem.
     """
     def __init__(self, nb_crit, f_voisinage, init_pop, instance, iter_max = 10):
         """
@@ -15,7 +15,7 @@ class PLS():
 
         f_voisinage : a function to generate the neighborhood of workable solution.
 
-        init_pop : a 2-D array of workable solutions.
+        init_pop : a nb_crit-D array of workable solutions.
         """
         assert init_pop.shape[1] == 100, "OUPS something went wrong with the initial pop"
         self.size_of_a_sol = len(init_pop[0])
@@ -24,7 +24,7 @@ class PLS():
         self.Pa = np.empty((0, self.size_of_a_sol), int) # auxiliary population of solutions
         self.N = f_voisinage # neighborhood function
 
-        # INSTANCE OF BI-OBJS KNAPSACK
+        # INSTANCE OF MULTI-OBJS KNAPSACK
         self.objects = instance["objects"]
         self.max_weight = instance["max_weight"]
         self.weights = self.objects["weights"]
@@ -43,10 +43,6 @@ class PLS():
         iteratively the population P of approximated solutions.
         """
         iter = 0
-        
-        #mean of indicator PYm and Dm
-        Dm_list = []	# indicateur_D(liste_yhat, liste_y, Y_I, Y_N)
-        PYm_list = []	# indicateur_P(liste_y, liste_yhat)
 
         while len(self.P) > 0 and iter < self.iter_max:
             # Generate all neighbors p' of each solution in the current population.
