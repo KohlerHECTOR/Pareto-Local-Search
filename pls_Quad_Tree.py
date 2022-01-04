@@ -24,7 +24,7 @@ class PLS():
         self.Pa = np.empty((0, self.size_of_a_sol), int) # auxiliary population of solutions
         self.N = f_voisinage # neighborhood function
 
-        # INSTANCE OF MULTI-OBJS KNAPSACK
+        # INSTANCE OF BI-OBJS KNAPSACK
         self.objects = instance["objects"]
         self.max_weight = instance["max_weight"]
         self.weights = self.objects["weights"]
