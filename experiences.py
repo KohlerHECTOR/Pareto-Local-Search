@@ -101,7 +101,6 @@ class resolution_time(experience):
         
         return "Aucune methode d'approximation PLS donnée"
 
-
 class resolution_Dm(experience):
     """
     The experience class for variation of indicator Dm
@@ -237,8 +236,7 @@ class resolution_Pm(experience):
             
             return np.mean(PmPLS4)
             
-        return "Aucune methode d'approximation PLS donnée"
-            
+        return "Aucune methode d'approximation PLS
 
           
         
