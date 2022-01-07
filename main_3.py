@@ -10,9 +10,10 @@ import pls
 
 instance = utils_multiobj.read_instance("data/100_items/2KP100-TA-0")
 
+initial_pop = utils_multiobj.init_population(instance["objects"], instance["max_weight"])
 initial_pop_S = utils_multiobj.init_population_S_weighted(2, instance["objects"], instance["max_weight"], S = 5)
 
-pls3 = pls_multiobj.PLS2(2, utils_multiobj.voisinage, initial_pop_S, instance, iter_max = 5)
+pls3 = pls_multiobj.PLS(2, utils_multiobj.voisinage, initial_pop_S, instance, iter_max = 5)
 
 timea = time.time()
 print("------------------- pls 3 --------------------")

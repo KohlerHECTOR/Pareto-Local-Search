@@ -147,7 +147,7 @@ def voisinage(solution, list_weights, max_weight):
     return neighbors
 
 def voisinage_L(solution, list_weights, max_weight, list_values, nb_crit, L = 5, solve = "enum"):
-#def voisinage_L(solution, list_weights, max_weight, list_values_1, list_values_2, L = 5, solve = "enum"):
+
     q = random()
     # indexes of objects in/not in the bag
     idx_objects_in = np.where(solution == 1)[0]
@@ -275,7 +275,7 @@ def strictly_dominates(p_values, p_prime_values):
 
     return np.all(p_values > p_prime_values)==True
         
-def ideal_nadir(objects):        
-    ideal = [max(objects["values_crit_"+str(i)]) for i in np.size(objects)[0]]
-    nadir = [min(objects["values_crit_"+str(i)]) for i in np.size(objects)[0]]
+def ideal_nadir(objects):  
+    ideal = [max(objects["values_crit_"+str(i+1)]) for i in range(len(objects)-1)]
+    nadir = [min(objects["values_crit_"+str(i+1)]) for i in range(len(objects)-1)]
     return [ideal, nadir]
