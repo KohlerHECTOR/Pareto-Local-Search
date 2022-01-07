@@ -21,7 +21,7 @@ def etendue(Y_N, Y_I, k):
         return 0
 
 def dist_prime(a, b):
-    liste_dist=np.empty()
+    liste_dist=np.empty(np.size(a)[0])
     for y2 in a:
         liste_dist.append(dist_euclid(y2,b))
     return np.min(liste_dist)

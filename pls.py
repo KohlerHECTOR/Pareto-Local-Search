@@ -1,6 +1,7 @@
 import numpy as np
 from utils import dominates, strictly_dominates
 from bisect import bisect_left
+from indicateurs import indicateur_P, indicateur_D
 
 class PLS():
     """
@@ -44,6 +45,11 @@ class PLS():
         iteratively the population P of approximated solutions.
         """
         iter = 0
+        
+        #mean of indicator PYm and Dm
+        Dm_list = []	# indicateur_D(liste_yhat, liste_y, Y_I, Y_N)
+        PYm_list = []	# indicateur_P(liste_y, liste_yhat)
+
         while len(self.P) > 0 and iter < self.iter_max:
             # Generate all neighbors p' of each solution in the current population.
             for p in self.P:
@@ -150,7 +156,7 @@ class PLS2(PLS):
 
         # make a list of all the values of the objective of the sols in the archive and the tested sol
         sorted_values = [self.get_sol_objective_values(sol) for sol in array_of_sols]
-        sorted_values = np.array(sorted_values)
+        sorted_values = np.array(sorted_values) 
 
         # find the index i such that obj1(sol[0]) >= obj1(sol[i-1])... obj1(sol[i-1]) > obj1(solTested) >= obj1(sol[i]) ...
         rank_of_p_prime_in_sorted_sols = bisect_left(-1 * sorted_values[:,0], -1 * p_prime_values[0])
