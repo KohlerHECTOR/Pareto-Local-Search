@@ -236,7 +236,7 @@ class resolution_Pm(experience):
             
             return np.mean(PmPLS4)
             
-        return "Aucune methode d'approximation PLS
+        return "Aucune methode d'approximation PLS donnée"
 
           
         
