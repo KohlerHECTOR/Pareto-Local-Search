@@ -1,9 +1,9 @@
 import numpy as np
 from utils_multiobj import dominates, strictly_dominates
 from bisect import bisect_left
-from indicateurs import indicateur_P, indicateur_D
+from Quad_Tree import Quad_Tree, Node_
 
-class PLS():
+class PLS_QT():
     """
     The Pareto Local Search class for the PLS algorithm in the context of multi-objs knapsack problem.
     """
@@ -17,23 +17,27 @@ class PLS():
 
         init_pop : a nb_crit-D array of workable solutions.
         """
-        assert init_pop.shape[1] == 100, "OUPS something went wrong with the initial pop"
-        self.size_of_a_sol = len(init_pop[0])
-        self.Xe = init_pop # approximation of efficient solutions
-        self.P = init_pop # current population of solutions
-        self.Pa = np.empty((0, self.size_of_a_sol), int) # auxiliary population of solutions
-        self.N = f_voisinage # neighborhood function
-
-        # INSTANCE OF BI-OBJS KNAPSACK
+        # INSTANCE OF MULTI-OBJS KNAPSACK
         self.objects = instance["objects"]
         self.max_weight = instance["max_weight"]
         self.weights = self.objects["weights"]
         
         self.nb_crit = nb_crit
         self.values_crit = np.array([self.objects["values_crit_"+str(i+1)] for i in range(self.nb_crit)])
-
+        
         self.iter_max = iter_max # stopping criterion
+                
+        self.size_of_a_sol = len(init_pop[0])
 
+        self.Xe = Quad_Tree(nb_crit, self.values_crit) # approximation of efficient solutions
+        self.Xe.setRoot(init_pop[0], self.values_crit)	# root of Xe tree : init_pop
+        self.P = Quad_Tree(nb_crit, self.values_crit) # current population of solutions
+        self.P.setRoot(init_pop[0], self.values_crit)	# root of P tree : init_pop 
+        self.Pa = Quad_Tree(nb_crit, self.values_crit) # auxiliary population of solutions
+        self.N = f_voisinage # neighborhood function
+        
+        #print([n.getCriteria() for n in self.P.getNodes()])
+        
     def get_sol_objective_values(self, sol):
         return np.array([sol @ self.values_crit[i] for i in range(len(self.values_crit))]) 
 
@@ -44,16 +48,21 @@ class PLS():
         """
         iter = 0
 
-        while len(self.P) > 0 and iter < self.iter_max:
+        while len(self.P.getNodes()) > 0 and iter < self.iter_max:
             # Generate all neighbors p' of each solution in the current population.
-            for p in self.P:
+            for p in self.P.getNodes():
+                #print("B : ", p.getCriteria())
                 # Get the objective values of sol p
-                p_values = self.get_sol_objective_values(p)
+                #p_values = self.get_sol_objective_values(p)
+                p_values = p.getCriteria()
+                #print("A ", p_values)
                 # Get neighbors of sol p
-                neighbors = self.N(p, self.weights, self.max_weight)
+                neighbors = self.N(p_values, self.weights, self.max_weight)
+                #print("neighbors : ", len(neighbors))
                 for p_prime in neighbors:
                     p_prime_values = self.get_sol_objective_values(p_prime)
-                    # If p' is non-dominated by p:
+                    
+                    """
                     if not dominates(p_values, p_prime_values):
                         # We check if p' is part of the current efficient sols
                         add, self.Xe = self.updates(self.Xe, p_prime)
@@ -65,13 +74,24 @@ class PLS():
 
                             else:
                                 _, self.Pa = self.updates(self.Pa, p_prime)
+                    """
+                    print(len(self.P.getNodes()))
+                    #add = self.Pa.insertNode(p_prime)
+                    #print(self.values_crit)
+                    add = self.P.insertNode(p_prime, self.values_crit)
+                    #print(len(self.P.getRoot().getSuccessor()))
+                    #input("Entree")
+                    #print(add)
 
+            #print(self.Pa.getNodes())
             # P is made of newly found potentially efficient solutions.
-            self.P = self.Pa.copy()
+            #self.P = self.P.copy_(self.Pa)
             print("Updated current population !")
-            print("population is of size: " , self.P.shape)
+            print("population is of size: " , len(self.P.getNodes()))
+            input("Entree")
+            #print(self.P.getNodes())
             # Reinit of auxiliary pop.
-            self.Pa = np.empty((0, self.size_of_a_sol), int)
+            #self.Pa = Quad_Tree(self.nb_crit, self.values_crit)
 
             iter += 1
 
@@ -123,13 +143,13 @@ class PLS():
 
         return add, array_of_sols
 
-
+"""
 class PLS2(PLS):
     def  __init__(self, nb_crit, f_voisinage, init_pop, instance, iter_max = 10):
         super().__init__(nb_crit, f_voisinage, init_pop, instance, iter_max)
 
     def updates(self, array_of_sols, p_prime):
-        """
+        """"""
         Function to update the set of approximated efficient solutions. But
         the set is  sorted with respect to the values of the first objective.
         It is sorted, because we insert new sols in order.
@@ -144,7 +164,7 @@ class PLS2(PLS):
 
         add : bool, whether or not the solution p_prime was added to the set of efficient solutions.
         array_of_sols : array of arrays, the updated archive.
-        """
+        """"""
         add = True
         p_prime_values = self.get_sol_objective_values(p_prime) # objective vals of p'
 
@@ -183,10 +203,10 @@ class PLS4(PLS2):
         super().__init__(nb_crit, f_voisinage, init_pop, instance, iter_max)
 
     def algorithm1(self, L = 5):
-        """
+        """"""
         The main algorithmic loop of the PLS alogirthm. It is building
         iteratively the population P of approximated solutions.
-        """
+        """"""
         iter = 0
         while len(self.P) > 0 and iter < self.iter_max:
             # Generate all neighbors p' of each solution in the current population.
@@ -217,4 +237,4 @@ class PLS4(PLS2):
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 
-            iter += 1
+            iter += 1"""
