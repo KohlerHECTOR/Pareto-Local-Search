@@ -109,6 +109,7 @@ def voisinage(solution, list_weights, max_weight):
     neighbors : an array of binary encodings.
     Each one corresponding to a workable solution in the neighborhood of the input solution .
     """
+    print(solution)
     # indexes of objects in/not in the bag
     idx_objects_in = np.where(solution == 1)[0]
     idx_objects_not_in = np.where(solution == 0)[0]
@@ -123,6 +124,9 @@ def voisinage(solution, list_weights, max_weight):
             # 1-1 exchange
             tmp_sol[i] = 0
             tmp_sol[j] = 1
+            
+           #print("A : ", tmp_sol, "  ", list_weights)
+            #print(tmp_sol @ list_weights, " ", max_weight)
 
             # check if the generated sol is workable
             if tmp_sol @ list_weights <= max_weight:
