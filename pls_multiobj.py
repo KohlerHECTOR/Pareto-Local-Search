@@ -17,7 +17,6 @@ class PLS():
 
         init_pop : a nb_crit-D array of workable solutions.
         """
-        assert init_pop.shape[1] == 100, "OUPS something went wrong with the initial pop"
         self.size_of_a_sol = len(init_pop[0])
         self.Xe = init_pop # approximation of efficient solutions
         self.P = init_pop # current population of solutions
