@@ -9,14 +9,15 @@ class Experience():
     """
     Subclass for the differents exepriences
     """
-    def __init__(self, instance_size, iter_max_, nb_inst):
+    def __init__(self, instance_size, iter_max_, nb_inst, tot_items = 100):
         """
         Function to initialized differents objects of PLS
         """
         self.nb_inst = nb_inst
-        self.size = instance_size
+        self.size = tot_items
+        self.nb_objects = instance_size
 
-        path = "data/"+str(instance_size)+"_items/2KP"+str(instance_size)+"-TA-"
+        path = "data/"+str(tot_items)+"_items/2KP"+str(tot_items)+"-TA-"
         pls1_list = []
         pls2_list = []
         pls3_list = []
@@ -29,7 +30,7 @@ class Experience():
         for i in range(nb_inst):
 
             filename = path + str(i)
-            instance = read_instance(filename)
+            instance = read_instance(filename, instance_size)
 
             ideal_nadir_list.append(ideal_nadir(instance["sols_pareto"]))
 
@@ -53,32 +54,32 @@ class Experience():
     def get_data(self):
         for i in range(self.nb_inst):
             print("Instance number {}".format(i + 1))
-            save_file_sols_pareto = open("data/"+str(self.size)+"_items/_"+ str(i) +"_sols_pareto_results.txt", "w")
+            save_file_sols_pareto = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" + str(i) +"_sols_pareto_results.txt", "w")
             for values in self.sols_pareto[i]:
-                save_file_sols_pareto.write(str(values) + "\n")
+                save_file_sols_pareto.write(str(values[0]) + ", " + str(values[1]) +"\n")
             save_file_sols_pareto.close()
 
-            save_file_ideal_nadir = open("data/"+str(self.size)+"_items/_"+ str(i) +"_ideal_nadir_results.txt", "w")
+            save_file_ideal_nadir = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" + str(i) +"_ideal_nadir_results.txt", "w")
             ideal = self.ideal_nadir[i][0]
             nadir = self.ideal_nadir[i][1]
-            save_file_ideal_nadir.write(str(ideal) + "\n")
-            save_file_ideal_nadir.write(str(nadir) + "\n")
+            save_file_ideal_nadir.write(str(ideal[0]) +", " + str(ideal[1]) + "\n")
+            save_file_ideal_nadir.write(str(nadir[0]) +", " + str(nadir[1]) + "\n")
             save_file_ideal_nadir.close()
 
 
 
-            save_file_pls1_times = open("data/"+str(self.size)+"_items/_"+ str(i) +"pls1_times_results.txt", "w")
-            save_file_pls2_times = open("data/"+str(self.size)+"_items/_"+ str(i) +"pls2_times_results.txt", "w")
-            save_file_pls3_times = open("data/"+str(self.size)+"_items/_"+ str(i) +"pls3_times_results.txt", "w")
-            save_file_pls4_times = open("data/"+str(self.size)+"_items/_"+ str(i) +"pls4_times_results.txt", "w")
-            save_file_pls1_pop_size = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls1_pop_size_results.txt", "w")
-            save_file_pls2_pop_size = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls2_pop_size_results.txt", "w")
-            save_file_pls3_pop_size = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls3_pop_size_results.txt", "w")
-            save_file_pls4_pop_size = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls4_pop_size_results.txt", "w")
-            save_file_pls1_current_pareto = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls1_current_pareto_results.txt", "w")
-            save_file_pls2_current_pareto = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls2_current_pareto_results.txt", "w")
-            save_file_pls3_current_pareto = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls3_current_pareto_results.txt", "w")
-            save_file_pls4_current_pareto = open("data/"+str(self.size)+"_items/_"+ str(i) +"_pls4_current_pareto_results.txt", "w")
+            save_file_pls1_times = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls1_times_results.txt", "w")
+            save_file_pls2_times = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls2_times_results.txt", "w")
+            save_file_pls3_times = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls3_times_results.txt", "w")
+            save_file_pls4_times = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls4_times_results.txt", "w")
+            save_file_pls1_pop_size = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls1_pop_size_results.txt", "w")
+            save_file_pls2_pop_size = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls2_pop_size_results.txt", "w")
+            save_file_pls3_pop_size = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls3_pop_size_results.txt", "w")
+            save_file_pls4_pop_size = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls4_pop_size_results.txt", "w")
+            save_file_pls1_current_pareto = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls1_current_pareto_results.txt", "w")
+            save_file_pls2_current_pareto = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls2_current_pareto_results.txt", "w")
+            save_file_pls3_current_pareto = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls3_current_pareto_results.txt", "w")
+            save_file_pls4_current_pareto = open("data/"+str(self.size)+"_items/_nb_objects_"+ str(self.nb_objects)+ "_" +str(i) +"_pls4_current_pareto_results.txt", "w")
 
             print("------------------- PLS 1 --------------------")
             timea = time.time()
@@ -114,57 +115,6 @@ class Experience():
             save_file_pls3_current_pareto.close()
             save_file_pls4_current_pareto.close()
 
-
-class ResolutionTime(Experience):
-    """
-    The experience class for resolution time
-    """
-    def __init__(self, instance_size, iter_max_, nb_inst):
-        super().__init__(instance_size, iter_max_, nb_inst)
-
-    def algorithm1(self, PLS):
-
-        if PLS == "PLS1":
-            timePLS1 = []
-            for i in range(self.nb_inst):
-                timea = time.time()
-                print("------------------- PLS 1 --------------------")
-                self.pls1[i].algorithm1()
-                timePLS1.append(time.time() - timea)
-
-            return timePLS1
-
-        elif PLS == "PLS2":
-            timePLS2 = []
-            for i in range(self.nb_inst):
-                timea = time.time()
-                print("------------------- PLS 2 --------------------")
-                self.pls2[i].algorithm1()
-                timePLS2.append(time.time() - timea)
-
-            return timePLS2
-
-        elif PLS == "PLS3":
-            timePLS3 = []
-            for i in range(self.nb_inst):
-                timea = time.time()
-                print("------------------- PLS 3 --------------------")
-                sel.pls3[i].algorithm1()
-                timePLS3.append(time.time() - timea)
-
-            return timePLS3
-
-        elif PLS == "PLS4":
-            timePLS4 = []
-            for i in range(self.nb_inst):
-                timea = time.time()
-                print("------------------- PLS 4 --------------------")
-                self.pls4[i].algorithm1(L = 5)
-                timePLS4.append(time.time() - timea)
-
-            return timePLS4
-
-        return "Aucune methode d'approximation PLS donnée"
 
 class ResolutionDm(Experience):
     """

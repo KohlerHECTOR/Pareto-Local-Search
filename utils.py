@@ -1,6 +1,7 @@
 import numpy as np
 from random import random
 from itertools import combinations
+import math
 
 def init_population(objects, max_weight):
     """
@@ -143,7 +144,6 @@ def voisinage(solution, list_weights, max_weight):
 
 def voisinage_L(solution, list_weights, max_weight, list_values_1, list_values_2, L = 5, solve = "enum"):
 
-
     q = random()
     # indexes of objects in/not in the bag
     idx_objects_in = np.where(solution == 1)[0]
@@ -209,15 +209,22 @@ def voisinage_L(solution, list_weights, max_weight, list_values_1, list_values_2
                         sols = np.concatenate((sols, comb_sol.reshape(1, new_KP_nb_objs)), axis = 0)
 
     for sol in sols:
-        tmp = np.concatenate((sol, solution[2 * L:]))
-        neighbors = np.concatenate((neighbors, tmp.reshape(1, len(solution))), axis = 0)
 
+        try:
+            tmp = np.concatenate((sol, solution[2 * L:]))
+            # print(sol)
+            # print(solution[2*L:])
+            # print(tmp)
+            neighbors = np.concatenate((neighbors, tmp.reshape(1, len(solution))), axis = 0)
+        except ValueError:
+            continue
     return neighbors
 
-def read_instance(file_):
+def read_instance(file_, nb_items = None):
     """
     Function to read a bi-objs knapsack problem instance
     """
+
     f_dat = open(file_+".dat", "r")
     lines = f_dat.readlines()
     liste_w = []
@@ -233,6 +240,9 @@ def read_instance(file_):
         elif tmp[0] == "W":
             poids_total = tmp[1]
 
+    if nb_items == None:
+        nb_items = len(liste_w)
+
     f_eff = open(file_+".eff","r")
     lines_eff = f_eff.readlines()
     liste_pareto=[]
@@ -240,9 +250,9 @@ def read_instance(file_):
         temp=line.split()
         liste_pareto.append([int(temp[0]), int(temp[1])])
 
-    objects = {"weights": np.array(liste_w), "values_crit_1": np.array(liste_v1),
-                "values_crit_2": np.array(liste_v2)}
-    instance = {"objects": objects, "max_weight": int(poids_total),
+    objects = {"weights": np.array(liste_w[:nb_items]), "values_crit_1": np.array(liste_v1[:nb_items]),
+                "values_crit_2": np.array(liste_v2[:nb_items])}
+    instance = {"objects": objects, "max_weight": int(math.floor(sum(liste_w[:nb_items])/2)),
                 "sols_pareto": np.array(liste_pareto)}
 
     return instance

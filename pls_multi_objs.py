@@ -1,5 +1,5 @@
 import numpy as np
-from utils_multiobj import dominates, strictly_dominates
+from utils_multi_objs import dominates, strictly_dominates
 from bisect import bisect_left
 from indicateurs import indicateur_P, indicateur_D
 
@@ -36,7 +36,7 @@ class PLS():
     def get_sol_objective_values(self, sol):
         return np.array([sol @ self.values_crit[i] for i in range(len(self.values_crit))])
 
-    def algorithm1(self):
+    def algorithm1(self, file_pop = None, file_pareto = None):
         """
         The main algorithmic loop of the PLS alogirthm. It is building
         iteratively the population P of approximated solutions.
@@ -69,6 +69,18 @@ class PLS():
             self.P = self.Pa.copy()
             print("Updated current population !")
             print("population is of size: " , self.P.shape)
+            if file_pop != None:
+                file_pop.write("NEW ITER\n")
+                file_pop.write(str(self.P.shape[0]) + "\n")
+            if file_pareto != None:
+                file_pareto.write("NEW ITER\n")
+                for sol in self.Xe:
+                    values = self.get_sol_objective_values(sol)
+                    to_str = str(values[0])
+                    for crit in values[1:]:
+                        to_str += ", "
+                        to_str += str(crit)
+                    file_pareto.write(to_str + "\n")
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 

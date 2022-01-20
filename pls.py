@@ -77,7 +77,7 @@ class PLS():
             if file_pareto != None:
                 file_pareto.write("NEW ITER\n")
                 for sol in self.Xe:
-                    file_pareto.write(str(self.get_sol_objective_values(sol)) + "\n")
+                    file_pareto.write(str(self.get_sol_objective_values(sol)[0]) + ", " + str(self.get_sol_objective_values(sol)[1]) + "\n")
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 
@@ -229,7 +229,7 @@ class PLS4(PLS2):
             if file_pareto != None:
                 file_pareto.write("NEW ITER\n")
                 for sol in self.Xe:
-                    file_pareto.write(str(self.get_sol_objective_values(sol)) + "\n")
+                    file_pareto.write(str(self.get_sol_objective_values(sol)[0]) + ", " + str(self.get_sol_objective_values(sol)[1]) + "\n")
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 
