@@ -17,7 +17,6 @@ class PLS():
 
         init_pop : a 2-D array of workable solutions.
         """
-        assert init_pop.shape[1] == 100, "OUPS something went wrong with the initial pop"
         self.size_of_a_sol = len(init_pop[0])
         self.Xe = init_pop # approximation of efficient solutions
         self.P = init_pop # current population of solutions
@@ -39,16 +38,12 @@ class PLS():
         return np.array([values_obj_1, values_obj_2])
 
 
-    def algorithm1(self):
+    def algorithm1(self, file_pop = None, file_pareto = None):
         """
         The main algorithmic loop of the PLS alogirthm. It is building
         iteratively the population P of approximated solutions.
         """
         iter = 0
-        
-        #mean of indicator PYm and Dm
-        Dm_list = []	# indicateur_D(liste_yhat, liste_y, Y_I, Y_N)
-        PYm_list = []	# indicateur_P(liste_y, liste_yhat)
 
         while len(self.P) > 0 and iter < self.iter_max:
             # Generate all neighbors p' of each solution in the current population.
@@ -75,7 +70,14 @@ class PLS():
             # P is made of newly found potentially efficient solutions.
             self.P = self.Pa.copy()
             print("Updated current population !")
-            print("population is of size: " , self.P.shape)
+            print("population is of size: " , self.P.shape[0])
+            if file_pop != None:
+                file_pop.write("NEW ITER\n")
+                file_pop.write(str(self.P.shape[0]) + "\n")
+            if file_pareto != None:
+                file_pareto.write("NEW ITER\n")
+                for sol in self.Xe:
+                    file_pareto.write(str(self.get_sol_objective_values(sol)) + "\n")
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 
@@ -156,7 +158,7 @@ class PLS2(PLS):
 
         # make a list of all the values of the objective of the sols in the archive and the tested sol
         sorted_values = [self.get_sol_objective_values(sol) for sol in array_of_sols]
-        sorted_values = np.array(sorted_values) 
+        sorted_values = np.array(sorted_values)
 
         # find the index i such that obj1(sol[0]) >= obj1(sol[i-1])... obj1(sol[i-1]) > obj1(solTested) >= obj1(sol[i]) ...
         rank_of_p_prime_in_sorted_sols = bisect_left(-1 * sorted_values[:,0], -1 * p_prime_values[0])
@@ -181,7 +183,7 @@ class PLS2(PLS):
 
             array_of_sols = np.concatenate((array_of_sols[:rank_of_p_prime_in_sorted_sols], p_prime.reshape(1,self.size_of_a_sol)), axis = 0)
             array_of_sols = np.concatenate((array_of_sols , tmp), axis = 0)
-            
+
         return add, array_of_sols
 
 
@@ -189,7 +191,7 @@ class PLS4(PLS2):
     def  __init__(self, f_voisinage, init_pop, instance, iter_max = 10):
         super().__init__(f_voisinage, init_pop, instance, iter_max)
 
-    def algorithm1(self, L = 5):
+    def algorithm1(self, L = 5 , file_pop = None, file_pareto = None):
         """
         The main algorithmic loop of the PLS alogirthm. It is building
         iteratively the population P of approximated solutions.
@@ -220,7 +222,14 @@ class PLS4(PLS2):
             # P is made of newly found potentially efficient solutions.
             self.P = self.Pa.copy()
             print("Updated current population !")
-            print("population is of size: " , self.P.shape)
+            print("population is of size: " , self.P.shape[0])
+            if file_pop != None:
+                file_pop.write("NEW ITER\n")
+                file_pop.write(str(self.P.shape[0]) + "\n")
+            if file_pareto != None:
+                file_pareto.write("NEW ITER\n")
+                for sol in self.Xe:
+                    file_pareto.write(str(self.get_sol_objective_values(sol)) + "\n")
             # Reinit of auxiliary pop.
             self.Pa = np.empty((0, self.size_of_a_sol), int)
 

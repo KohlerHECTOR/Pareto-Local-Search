@@ -135,7 +135,7 @@ def voisinage(solution, list_weights, max_weight):
                 if tmp_sol.tolist() not in neighbors.tolist():
                     neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
                 # neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
-            
+
             tmp_sol = solution.copy()
 
 
@@ -279,8 +279,8 @@ def strictly_dominates(p_values, p_prime_values):
         return True
     else:
         return False
-        
-def ideal_nadir(objects):
-    ideal = [max(objects["values_crit_1"]), max(objects["values_crit_2"])]
-    nadir = [min(objects["values_crit_1"]), min(objects["values_crit_2"])]
+
+def ideal_nadir(pareto_front):
+    ideal = [max(pareto_front[:,0]), max(pareto_front[:,1])]
+    nadir = [min(pareto_front[:,0]), min(pareto_front[:,1])]
     return [ideal, nadir]

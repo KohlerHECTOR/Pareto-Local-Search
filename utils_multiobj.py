@@ -124,7 +124,7 @@ def voisinage(solution, list_weights, max_weight):
             # 1-1 exchange
             tmp_sol[i] = 0
             tmp_sol[j] = 1
-            
+
            #print("A : ", tmp_sol, "  ", list_weights)
             #print(tmp_sol @ list_weights, " ", max_weight)
 
@@ -144,7 +144,7 @@ def voisinage(solution, list_weights, max_weight):
                 if tmp_sol.tolist() not in neighbors.tolist():
                     neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
                 # neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
-            
+
             tmp_sol = solution.copy()
 
 
@@ -160,7 +160,7 @@ def voisinage_L(solution, list_weights, max_weight, list_values, nb_crit, L = 5,
     neighbors = np.empty((0, len(solution)), int)
 
     tmp_sol = solution.copy()
-    
+
     list_R = np.array([R(list_weights[i], q, np.array([c[i] for c in list_values])) for i in idx_objects_in])
     worst_R = np.argsort(list_R)
     L1 = worst_R[:L]
@@ -232,17 +232,17 @@ def read_instance(file_):
     liste_crit = []
     nb_crit = 0
     poids_total = 0
-    
+
     for line in lines:
         tmp = line.split()
         if tmp[0:2] == ['c',  'w']:
            liste_crit = [[] for i in range(2,len(tmp))]
-           
+
         if tmp[0] == "i":
             liste_w.append(int(tmp[1]))
             for i in range(len(liste_crit)):
                 liste_crit[i].append(int(tmp[i+2]))
-                
+
         elif tmp[0] == "W":
             poids_total = tmp[1]
 
@@ -257,7 +257,7 @@ def read_instance(file_):
     objects = {"weights": np.array(liste_w)}
     for i in range(len(liste_crit)):
         objects["values_crit_"+str(i+1)] = np.array(liste_crit[i])
-    
+
     instance = {"objects": objects, "max_weight": int(poids_total),
                 "sols_pareto": np.array(liste_pareto)}
 
@@ -267,7 +267,7 @@ def dominates(p_values, p_prime_values):
     """
     Function to check if vector p dominates (pareto) p' in maximisation
     	p_values >= p_prime_values and p_values != p_prime_values
-    """    
+    """
     assert np.size(p_values) == np.size(p_prime_values), "OUPS, p and p' not same number of criteria"
     return (np.all(p_values >= p_prime_values)==True) and (np.all(p_values == p_prime_values)==False)
 
@@ -278,8 +278,8 @@ def strictly_dominates(p_values, p_prime_values):
     assert np.size(p_values) == np.size(p_prime_values), "OUPS, p and p' not same number of criteria"
 
     return np.all(p_values > p_prime_values)==True
-        
-def ideal_nadir(objects):  
-    ideal = [max(objects["values_crit_"+str(i+1)]) for i in range(len(objects)-1)]
-    nadir = [min(objects["values_crit_"+str(i+1)]) for i in range(len(objects)-1)]
+
+def ideal_nadir(pareto_front):
+    ideal = [max(pareto_front[:, i]) for i in range(pareto_front.shape[1])]
+    nadir = [min(pareto_front[:, i]) for i in range(pareto_front.shape[1])]
     return [ideal, nadir]
