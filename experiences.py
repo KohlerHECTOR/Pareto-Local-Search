@@ -35,7 +35,7 @@ class Experience():
 
             initial_pop = init_population(instance["objects"], instance["max_weight"])
 
-            initial_pop_S = init_population_S_weighted(instance["objects"], instance["max_weight"], S = 5)
+            initial_pop_S = init_population_S_weighted(instance["objects"], instance["max_weight"], S = 2)
             pls1_list.append(PLS(voisinage, initial_pop, instance, iter_max = iter_max_))
             pls2_list.append(PLS2(voisinage, initial_pop, instance, iter_max = iter_max_))
             pls3_list.append(PLS2(voisinage, initial_pop_S, instance, iter_max = iter_max_))
