@@ -2,6 +2,59 @@ import numpy as np
 from random import random
 from itertools import combinations
 
+def voisinage(solution, list_weights, max_weight):
+    """
+    Function to generate the neighborhood of a workable solution.
+    ARGS
+    solution : binary encoding of a workable solution (array of 0s and 1s
+    of len total number of possible objects)
+    list_weights : an array weights (one weight per possible object).
+    max_weight : an integer for the weight available in the bag.
+    RETURNS
+    neighbors : an array of binary encodings.
+    Each one corresponding to a workable solution in the neighborhood of the input solution .
+    """
+    print(solution)
+    # indexes of objects in/not in the bag
+    idx_objects_in = np.where(solution == 1)[0]
+    idx_objects_not_in = np.where(solution == 0)[0]
+
+    neighbors = np.empty((0, len(solution)), int)
+
+    tmp_sol = solution.copy()
+
+    # Iterate over all possible 1-1 exchanges
+    for i in idx_objects_in:
+        for j in idx_objects_not_in:
+            # 1-1 exchange
+            tmp_sol[i] = 0
+            tmp_sol[j] = 1
+
+           #print("A : ", tmp_sol, "  ", list_weights)
+            #print(tmp_sol @ list_weights, " ", max_weight)
+
+            # check if the generated sol is workable
+            if tmp_sol @ list_weights <= max_weight:
+
+                # fill the bag as much as possible
+                free_weight =  max_weight - tmp_sol @ list_weights
+                objects_that_could_fit = np.where(list_weights <= free_weight)[0]
+
+                while free_weight > 0 and len(objects_that_could_fit) > 0:
+                    object_to_add = np.random.choice(objects_that_could_fit)
+                    tmp_sol[object_to_add] = 1
+                    free_weight -= list_weights[object_to_add]
+                    objects_that_could_fit = np.where(list_weights <= free_weight)[0]
+
+                if tmp_sol.tolist() not in neighbors.tolist():
+                    neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
+                # neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
+
+            tmp_sol = solution.copy()
+
+
+    return neighbors
+
 def init_population(objects, max_weight):
 	"""
 	Function to build an initial population for the Pareto Local Search algo.
