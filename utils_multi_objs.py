@@ -4,56 +4,56 @@ from itertools import combinations
 import math
 
 def voisinage(solution, list_weights, max_weight):
-    """
-    Function to generate the neighborhood of a workable solution.
-    ARGS
-    solution : binary encoding of a workable solution (array of 0s and 1s
-    of len total number of possible objects)
-    list_weights : an array weights (one weight per possible object).
-    max_weight : an integer for the weight available in the bag.
-    RETURNS
-    neighbors : an array of binary encodings.
-    Each one corresponding to a workable solution in the neighborhood of the input solution .
-    """
-    # indexes of objects in/not in the bag
-    idx_objects_in = np.where(solution == 1)[0]
-    idx_objects_not_in = np.where(solution == 0)[0]
+	"""
+	Function to generate the neighborhood of a workable solution.
+	ARGS
+	solution : binary encoding of a workable solution (array of 0s and 1s
+	of len total number of possible objects)
+	list_weights : an array weights (one weight per possible object).
+	max_weight : an integer for the weight available in the bag.
+	RETURNS
+	neighbors : an array of binary encodings.
+	Each one corresponding to a workable solution in the neighborhood of the input solution .
+	"""
+	# indexes of objects in/not in the bag
+	idx_objects_in = np.where(solution == 1)[0]
+	idx_objects_not_in = np.where(solution == 0)[0]
 
-    neighbors = np.empty((0, len(solution)), int)
+	neighbors = np.empty((0, len(solution)), int)
 
-    tmp_sol = solution.copy()
+	tmp_sol = solution.copy()
 
-    # Iterate over all possible 1-1 exchanges
-    for i in idx_objects_in:
-        for j in idx_objects_not_in:
-            # 1-1 exchange
-            tmp_sol[i] = 0
-            tmp_sol[j] = 1
+	# Iterate over all possible 1-1 exchanges
+	for i in idx_objects_in:
+		for j in idx_objects_not_in:
+			# 1-1 exchange
+			tmp_sol[i] = 0
+			tmp_sol[j] = 1
 
-           #print("A : ", tmp_sol, "  ", list_weights)
-            #print(tmp_sol @ list_weights, " ", max_weight)
+		   #print("A : ", tmp_sol, "  ", list_weights)
+			#print(tmp_sol @ list_weights, " ", max_weight)
 
-            # check if the generated sol is workable
-            if tmp_sol @ list_weights <= max_weight:
+			# check if the generated sol is workable
+			if tmp_sol @ list_weights <= max_weight:
 
-                # fill the bag as much as possible
-                free_weight =  max_weight - tmp_sol @ list_weights
-                objects_that_could_fit = np.where(list_weights <= free_weight)[0]
+				# fill the bag as much as possible
+				free_weight =  max_weight - tmp_sol @ list_weights
+				objects_that_could_fit = np.where(list_weights <= free_weight)[0]
 
-                while free_weight > 0 and len(objects_that_could_fit) > 0:
-                    object_to_add = np.random.choice(objects_that_could_fit)
-                    tmp_sol[object_to_add] = 1
-                    free_weight -= list_weights[object_to_add]
-                    objects_that_could_fit = np.where(list_weights <= free_weight)[0]
+				while free_weight > 0 and len(objects_that_could_fit) > 0:
+					object_to_add = np.random.choice(objects_that_could_fit)
+					tmp_sol[object_to_add] = 1
+					free_weight -= list_weights[object_to_add]
+					objects_that_could_fit = np.where(list_weights <= free_weight)[0]
 
-                if tmp_sol.tolist() not in neighbors.tolist():
-                    neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
-                # neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
+				if tmp_sol.tolist() not in neighbors.tolist():
+					neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
+				# neighbors = np.concatenate((neighbors, tmp_sol.reshape(1, len(solution))), axis = 0)
 
-            tmp_sol = solution.copy()
+			tmp_sol = solution.copy()
 
 
-    return neighbors
+	return neighbors
 
 def init_population(objects, max_weight):
 	"""
@@ -153,3 +153,21 @@ def ideal_nadir(pareto_front):
 	ideal = [max(pareto_front[:, i]) for i in range(pareto_front.shape[1])]
 	nadir = [min(pareto_front[:, i]) for i in range(pareto_front.shape[1])]
 	return [ideal, nadir]
+
+def get_pareto_fronts_from_data(filename):
+	pareto_fronts_each_iter = []
+	with open(filename, "r") as t:
+		lines = t.readlines()
+		iter = []
+		for j, l in enumerate(lines):
+			if l == "NEW ITER\n":
+				if j > 0:
+					pareto_fronts_each_iter.append(iter)
+				iter = []
+			else:
+				iter.append([float(x) for x in l.split(", ")])
+		pareto_fronts_each_iter.append(iter)
+
+	return pareto_fronts_each_iter
+
+print(get_pareto_fronts_from_data("data_multi_objs/200_items/_nb_crit_3_nb_objects_20_0_pls1_current_pareto_results.txt")[-1])
