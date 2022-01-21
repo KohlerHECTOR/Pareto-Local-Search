@@ -30,20 +30,22 @@ def MMR(X,P):
 	min_ = 10e3
 	print("min_  ", min_)
 	x_ = 0
+	y_ = 0
 	print("X : ", X)
 	for x in X :
 		y, valeur = MR(x, X, P)
 		
-		print("~~ x : ", x, "  ", valeur)
-		#input("x")
+		print("~~ x : ", x, " y : ", y, "  ", valeur)
+		input("x")
 		if valeur < min_ :
 			print(valeur, "<", min_)
-			#input("valeur < min")
+			input("valeur < min")
 			min_ = valeur 
 			x_ = x
+			y_ = y
 	print(x_, "  ", min_)
-	#input("#### MMR return x, min")
-	return x_, y, min_
+	input("#### MMR return x, min")
+	return x_, y_, min_
 
 def MR(x, X, P):
 	print("IN MR")
@@ -51,21 +53,25 @@ def MR(x, X, P):
 	y_ = 0
 	print("X : ", X)
 	for y in X:
-		print("x : ", x, " ## y : ", y)
-		valeur = PMR_owa(x,y,P)
-		if max_ < valeur :
-			print(max_, "<", valeur)
-			#input("max < valeur")
-			max_ = valeur
-			y_ = y
+		if not np.array_equal(x,y):
+			print("x : ", x, " ## y : ", y)
+			input("x, y")
+			valeur = PMR_owa(x,y,P)
+			if max_ < valeur :
+				print(max_, "<", valeur)
+				input("max < valeur")
+				max_ = valeur
+				y_ = y
 	print(y_, "  ", max_)
-	#input("#### MR return y, max") 
+	input("#### MR return y, max") 
 	return y_, max_
 
 def PMR_owa(x,y,P):
 	print("IN PMR_owa")
 	x_rearr = np.sort(x)
 	y_rearr = np.sort(y)
+	print(x_rearr, " ", y_rearr)
+	input("x_rearr, y_rearr")
 	return PMR_ws(x_rearr,y_rearr,P)
 	
 #Implementation de PMR par Programme Linéaire
@@ -127,4 +133,5 @@ def PMR_ws(x,y,P):
 	
 if __name__ == '__main__':
 	X = np.array([[45,32], [21,3], [5,90]])
+	#X = np.array([[32523, 32783],[32596, 32501], [33456, 32402], [32563, 32672], [32376, 32843]])
 	print(main_(X))
