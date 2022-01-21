@@ -169,5 +169,3 @@ def get_pareto_fronts_from_data(filename):
 		pareto_fronts_each_iter.append(iter)
 
 	return pareto_fronts_each_iter
-
-print(get_pareto_fronts_from_data("data_multi_objs/200_items/_nb_crit_3_nb_objects_20_0_pls1_current_pareto_results.txt")[-1])
