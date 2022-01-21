@@ -1,6 +1,7 @@
 import numpy as np
 from random import random
 from itertools import combinations
+import math
 
 def voisinage(solution, list_weights, max_weight):
     """
@@ -14,7 +15,6 @@ def voisinage(solution, list_weights, max_weight):
     neighbors : an array of binary encodings.
     Each one corresponding to a workable solution in the neighborhood of the input solution .
     """
-    print(solution)
     # indexes of objects in/not in the bag
     idx_objects_in = np.where(solution == 1)[0]
     idx_objects_not_in = np.where(solution == 0)[0]
@@ -95,7 +95,7 @@ def init_population(objects, max_weight):
 
 	return np.array([sol])  #codage binaire du contenu du sac
 
-def read_instance(file_, nb_items = None, nb_crit = None):
+def read_instance(file_, nb_items = None, nb_crit = 3):
 	"""
 	Function to read a multi-objs knapsack problem instance
 	"""
@@ -103,14 +103,11 @@ def read_instance(file_, nb_items = None, nb_crit = None):
 	lines = f_dat.readlines()
 	liste_w = []
 	liste_crit = []
-	nb_crit = 0
 	poids_total = 0
 
 	for line in lines:
 		tmp = line.split()
 		if tmp[0:2] == ['c',  'w']:
-		   if nb_crit == None:
-			   nb_crit = len(tmp)
 
 		   liste_crit = [[] for i in range(2, 2 + nb_crit)]
 
@@ -127,19 +124,12 @@ def read_instance(file_, nb_items = None, nb_crit = None):
 	if nb_items == None:
 		nb_items = len(liste_w)
 
-	f_eff = open(file_+".eff","r")
-	lines_eff = f_eff.readlines()
-	liste_pareto=[]
-	for line in lines_eff:
-		temp=line.split()
-		liste_pareto.append([int(temp[0]), int(temp[1])])
 
 	objects = {"weights": np.array(liste_w[:nb_items])}
 	for i in range(len(liste_crit)):
 		objects["values_crit_"+str(i+1)] = np.array(liste_crit[i][:nb_items])
 
-	instance = {"objects": objects, "max_weight": int(math.floor(sum(liste_w[:nb_items])/2)),
-				"sols_pareto": np.array(liste_pareto)}
+	instance = {"objects": objects, "max_weight": int(math.floor(sum(liste_w[:nb_items])/2))}
 
 	return instance
 
