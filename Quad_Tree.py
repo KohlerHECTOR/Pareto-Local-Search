@@ -90,10 +90,7 @@ class Quad_Tree():
         """ return if list of nodes empty or not
         """
         return len(self.nodes) == 0
-
-    """def get_sol_objective_values(self, sol):
-        return np.array([sol @ self.values_crit[i] for i in range(len(self.values_crit))]) 
-    """    
+   
     def insertNode(self, x_values, values_crit):
         """ insert new Node not dominate in tree
         """
