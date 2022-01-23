@@ -4,14 +4,14 @@ from utils_multi_objs import get_pareto_fronts_from_data
 
 
 class ELICIT():
-	def __init__(self, X, DM, agreg):
+	def __init__(self, X, DM, agreg, nb_crit = 3):
 		self.X = X
 		self.DM = DM
 		self.agreg = agreg
 		self.P = []
 		self.F_P = []
 		self.mmr_per_query = []
-
+		sefl.nb_crit = nb_crit
 	def algorithm1(self):
 		while True:
 			x, y, valeur, w, z = self.CSS()
@@ -55,8 +55,8 @@ class ELICIT():
 	def MMR(self):
 
 		min_ = 10e5
-		x_ = 0
-		y_ = 0
+		x_ = np.zeros(self.nb_crit)
+		y_ = np.zeros(self.nb_crit)
 		w_ = []
 
 		for x in self.X :
@@ -73,7 +73,7 @@ class ELICIT():
 	def MR(self, x):
 
 		max_ = -10e5
-		y_ = 0
+		y_ = np.zeros(self.nb_crit)
 		w_ = []
 
 		for y in self.X:
