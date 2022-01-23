@@ -1,11 +1,15 @@
-# LOCAL PARETO SEARCH (WIP)
-## TO DO
+# MADMC Project
 
-### Pour le tme
-- Obtenir des tableaux de résultats pour les différentes versions des algos avec les indicateurs et faire varier les tailles des instances.
-- Trouver un bon S pour PLS 3 (nombre d'indivs dans la pop initiale).
-- Étudier l'influence de L dans PLS 4 (la taille d'une solution du sous-problème du sac à dos dans la nouvelle fonction de voisinage).
+## Reproduce results (roughly 5 minutes run time)
 
-### Pour le projet
-- Passer les algos en multi-objs (ils sont en bi-objs pour le moment).
-- Utiliser une structure de donnees plus adaptee (QD-tree).
+```
+python3 get_data_elic_vs_rbls.py
+```
+
+## Generate an approximated pareto front using PLS on knapsack pbm
+
+```
+python3 study_multi_objs.py
+```
+
+Data is saved in data_multi_objs/ 

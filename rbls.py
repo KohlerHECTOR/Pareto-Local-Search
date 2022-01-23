@@ -81,7 +81,8 @@ class RBLS():
 
 		x, y, valeur, w = self.MMR(X)
 
-		self.mmr_per_query.append(valeur)
+		if valeur >= 0:
+			self.mmr_per_query.append(valeur)
 		if self.agreg == "OWA":
 			if (self.DM @ np.sort(x)) > (self.DM @ np.sort(y)):
 				z = "x"
