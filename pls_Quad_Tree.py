@@ -10,8 +10,11 @@ class PLS_QT():
     def __init__(self, nb_crit, f_voisinage, init_pop, instance, iter_max = 10):
         """
         Function to initialise the PLS class.
+
         ARGS
+
         f_voisinage : a function to generate the neighborhood of workable solution.
+
         init_pop : a nb_crit-D array of workable solutions.
         """
         # INSTANCE OF MULTI-OBJS KNAPSACK
