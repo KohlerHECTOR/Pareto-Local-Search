@@ -1,5 +1,11 @@
 # MADMC Project
 
+## Install requirements
+
+```
+pip3 install -r requirements.txt
+```
+
 ## Get MMR per query plot from saved data (results in the report) (2 minutes run time)
 
 ```
