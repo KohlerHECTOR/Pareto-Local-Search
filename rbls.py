@@ -203,5 +203,5 @@ if __name__ == '__main__':
 	instance = read_instance(filename, nb_items = 20, nb_crit = 3)
 	initial_pop = init_greedy(instance["objects"], instance["max_weight"])
 	DM = get_DM(3)
-	rbls = RBLS(nb_crit = 3, f_voisinage = voisinage, init_pop = initial_pop, instance = instance, DM = DM, iter_max = 10, agreg = "WS")
+	rbls = RBLS(nb_crit = 3, f_voisinage = voisinage, init_pop = initial_pop, instance = instance, DM = DM, iter_max = 10, agreg = "OWA")
 	rbls.algorithm1(thresh = 0)

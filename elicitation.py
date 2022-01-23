@@ -163,9 +163,7 @@ def get_DM(nb_crit, agreg = "OWA"):
 	return DM
 
 if __name__ == '__main__':
-	X = get_pareto_fronts_from_data("data_multi_objs/200_items/_nb_crit_3_nb_objects_30_0_pls1_current_pareto_results.txt")[-1]
-
-
-	DM = get_DM(3, agreg = "WS")
-	elic = ELICIT( X, DM, agreg = "WS")
+	X = get_pareto_fronts_from_data("data_multi_objs/200_items/_nb_crit_3_nb_objects_20_0_pls1_current_pareto_results.txt")[-1]
+	DM = get_DM(3, agreg = "OWA")
+	elic = ELICIT( X, DM, agreg = "OWA")
 	w = elic.algorithm1()
