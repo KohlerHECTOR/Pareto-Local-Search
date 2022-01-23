@@ -20,7 +20,7 @@ class PLS():
         self.size_of_a_sol = len(init_pop[0])
         self.Xe = init_pop # approximation of efficient solutions
         self.P = init_pop # current population of solutions
-        self.Pa = np.empty((0, self.size_of_a_sol), int) # auxiliary population of solutions
+        self.Pa =np.empty((0, self.size_of_a_sol), int)# auxiliary population of solutions
         self.N = f_voisinage # neighborhood function
 
         # INSTANCE OF MULTI-OBJS KNAPSACK
@@ -50,13 +50,12 @@ class PLS():
                 p_values = self.get_sol_objective_values(p)
                 # Get neighbors of sol p
                 neighbors = self.N(p, self.weights, self.max_weight)
-                for p_prime in neighbors:
+                for p_prime in np.array(neighbors):
                     p_prime_values = self.get_sol_objective_values(p_prime)
                     # If p' is non-dominated by p:
                     if not dominates(p_values, p_prime_values):
                         # We check if p' is part of the current efficient sols
                         add, self.Xe = self.updates(self.Xe, p_prime)
-
                         if add:
 
                             if len(self.Pa) == 0:
@@ -114,10 +113,9 @@ class PLS():
 
         for val in all_values:
             # If there is an efficient solution dominating p', we dont add p_prime.
-            if dominates(val, p_prime_values):
+            if dominates(val, p_prime_values) or np.all(val == p_prime_values) == True:
                 add = False
                 break
-
         # If we want to add p' to the set of efficient sols, we have to delete the solutions
         # dominated by p' in the set of efficient sols.
         if add:
@@ -125,7 +123,7 @@ class PLS():
 
             for i , val in enumerate(all_values):
                 # We delete all the solutions strictly dominated by p'.
-                if dominates(p_prime_values, val):
+                if strictly_dominates(p_prime_values, val):
                     idx_to_delete.append(i)
 
             # Update of set of approximated efficient sols (delete dominated sols, add p')
