@@ -1,7 +1,6 @@
 import numpy as np
 from utils_multi_objs import dominates, strictly_dominates
 from bisect import bisect_left
-from indicateurs import indicateur_P, indicateur_D
 
 class PLS():
     """

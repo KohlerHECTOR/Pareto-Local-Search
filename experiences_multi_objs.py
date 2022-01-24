@@ -3,7 +3,6 @@ import time
 import numpy as np
 from utils_multi_objs import read_instance, init_population, voisinage, ideal_nadir
 from pls_multi_objs import PLS
-from indicateurs import indicateur_P, indicateur_D, intersect2d
 
 class Experience():
     """
